@@ -27,21 +27,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Authentication',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="FindDriverTab"
-        options={{
-          title: 'Find Driver',
+          title: 'Authentication (USER APP)',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
       <Tabs.Screen
         name="DestinationSearchTab"
         options={{
-          title: 'Where to?',
+          title: 'Where to? (USER APP)',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="FindDriverTab"
+        options={{
+          title: 'Find Driver (USER APP)',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />

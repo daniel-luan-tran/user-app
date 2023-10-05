@@ -16,12 +16,18 @@ import { connectSocket } from '@/api/connectSocket';
 import { checkUserRole, checkUser } from '@/api';
 import { Account } from '@/types';
 import { useNavigation, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 const _apiUrl = process.env.EXPO_PUBLIC_API_URL;
+enum Status {
+  FINDING_DRIVER = 'FINDING_DRIVER',
+  FOUND_DRIVER = 'FOUND_DRIVER',
+  STOPPED_FIND_DRIVER = 'STOPPED_FIND_DRIVER',
+}
 
 export default function FindDriver() {
   const [socket, setSocket] = useState<Socket>();
-  const [status, setStatus] = useState<boolean>(false);
+  const [status, setStatus] = useState<Status>();
   const [disconnectCountdown, setDisconnectCountdown] = useState<number>(0);
   const [activeIntervals, setActiveIntervals] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,6 +36,7 @@ export default function FindDriver() {
   const isDarkMode = useColorScheme() === 'dark';
   const timeoutConnect = 60; // Second
   const navigation = useNavigation();
+  const params = useLocalSearchParams();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.dark : Colors.light,
@@ -76,18 +83,20 @@ export default function FindDriver() {
   }, []);
 
   useEffect(() => {
-    if (status) {
-      const timerId = setInterval(() => {
-        setDisconnectCountdown((prevCount) => prevCount - 1);
-      }, 1000);
-      setActiveIntervals((prevIds) => [
-        ...prevIds,
-        timerId as unknown as number,
-      ]);
-    } else {
-      activeIntervals.forEach((intervalId) => clearInterval(intervalId));
-    }
-  }, [status]);
+    // if (status) {
+    //   const timerId = setInterval(() => {
+    //     setDisconnectCountdown((prevCount) => prevCount - 1);
+    //   }, 1000);
+    //   setActiveIntervals((prevIds) => [
+    //     ...prevIds,
+    //     timerId as unknown as number,
+    //   ]);
+    // } else {
+    //   activeIntervals.forEach((intervalId) => clearInterval(intervalId));
+    // }
+    console.log('status', status);
+    console.log('loading', loading);
+  }, [status, loading]);
 
   const driverRequest = async () => {
     // setDisconnectCountdown(timeoutConnect);
@@ -95,15 +104,37 @@ export default function FindDriver() {
     const _socket = await connectSocket();
     setConnecting(true);
     if (_socket) {
-      _socket.on('welcome', (jsonData) => {
-        setStatus(jsonData.status);
-      });
-      _socket.on('userFromTo', (jsonData) => {
-        setStatus(jsonData);
-      });
+      setStatus(Status.FINDING_DRIVER);
+
+      if (params) {
+        _socket.on('connect', () => {
+          _socket.emit('driverRequest', {
+            from: {
+              startLat: parseFloat(params.startLat as string),
+              startLng: parseFloat(params.startLng as string),
+            },
+            to: {
+              latitude: parseFloat(params.endLat as string),
+              longitude: parseFloat(params.endLng as string),
+            },
+          });
+
+          _socket.on('acceptPassenger', (data) => {
+            console.log('driverLocation', data);
+            setLoading(false);
+            setStatus(Status.FOUND_DRIVER);
+          });
+        });
+      }
+
       _socket.on('disconnect', () => {
-        setStatus(false);
+        setStatus(Status.STOPPED_FIND_DRIVER);
       });
+
+      _socket.on('driverDisconnect', () => {
+        _socket.disconnect();
+      });
+
       setSocket(_socket);
       // setInterval(() => {
       //   _socket.disconnect();
@@ -114,9 +145,10 @@ export default function FindDriver() {
   const onDisconnectSocket = async () => {
     console.log(_apiUrl);
     if (_apiUrl) {
-      socket?.disconnect();
+      socket?.emit('passengerDisconnect');
+      // socket?.disconnect();
       if (socket?.disconnected) {
-        setStatus(false);
+        setStatus(Status.STOPPED_FIND_DRIVER);
         setConnecting(false);
         setLoading(false);
       }
@@ -155,27 +187,42 @@ export default function FindDriver() {
       />
 
       <View>
-        {loading ? (
+        {status === Status.FINDING_DRIVER && loading ? (
           <ActivityIndicator size="large" />
         ) : (
-          <Button title="Find driver" onPress={driverRequest} />
+          (status === Status.STOPPED_FIND_DRIVER || !status) && (
+            <Button title="Find driver" onPress={driverRequest} />
+          )
         )}
 
-        {connecting && (
+        {connecting && status !== Status.STOPPED_FIND_DRIVER && (
           <Button
             title="Stop finding"
             onPress={onDisconnectSocket}
             color={'grey'}
           />
         )}
-        <Text style={{ color: status ? 'green' : 'orange' }}>
-          Status: {status ? 'Finding passenger! ' : 'Stopped finding! '}
+        <Text
+          style={{
+            color:
+              status === Status.FINDING_DRIVER
+                ? 'orange'
+                : status === Status.FOUND_DRIVER
+                ? 'green'
+                : 'red',
+          }}
+        >
+          Status:{' '}
+          {status === Status.FINDING_DRIVER
+            ? 'Finding driver!'
+            : status === Status.FOUND_DRIVER
+            ? 'Found driver!'
+            : 'Stopped finding!'}
           {/* {status &&
               `Will disconnect in ${disconnectCountdown} second${
                 disconnectCountdown > 1 ? 's' : ''
               }`} */}
         </Text>
-        <Text>apiUrl: {_apiUrl}</Text>
       </View>
     </SafeAreaView>
   );

@@ -15,6 +15,7 @@ import { useRoute } from '@react-navigation/native';
 import LogoutView from '@/components/LogoutView/LogoutView';
 import SearchResult from '@/components/SearchResult/SearchResult';
 import AuthViewLocal from '@/components/AuthViewLocal/AuthViewLocal';
+import FindDriver from '@/components/FindDriver/FindDriver';
 
 export default function ModalScreen() {
   const route = useRoute();
@@ -29,6 +30,7 @@ export default function ModalScreen() {
             <LogoutView logoutLink={logoutLink} />
           )}
           {viewType == DynamicView.SEARCHRESULT_VIEW && <SearchResult />}
+          {viewType == DynamicView.FIND_DRIVER_VIEW && <FindDriver />}
 
           {/* Use a light status bar on iOS to account for the black space above the modal */}
           <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
