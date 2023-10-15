@@ -112,13 +112,13 @@ export default function TabIndexScreen() {
           <Button title="Login with Azure Microsoft" onPress={openModalLogin} />
           <Button title="Local login" onPress={openModalLocalLogin} />
 
-          <Button
+          {/* <Button
             title="Hello"
             onPress={async () => {
               const hello = await axios.get('/v1/auth/hello');
               console.log(hello.data);
             }}
-          />
+          /> */}
         </View>
       ) : (
         <View>
@@ -171,15 +171,13 @@ export default function TabIndexScreen() {
             <Text style={{ color: 'red' }}>Address is required!</Text>
           )}
           <View>
-            {(!user.address || !user.phoneNumber || !user.driverTypeId) && (
-              <Button
-                title="Update user infomation"
-                onPress={() => {
-                  if (updatedUser) handleUpdate(user.id, updatedUser);
-                }}
-                disabled={address && phoneNumber ? false : true}
-              />
-            )}
+            <Button
+              title="Update user infomation"
+              onPress={() => {
+                if (updatedUser) handleUpdate(user.id, updatedUser);
+              }}
+              disabled={address && phoneNumber ? false : true}
+            />
             {isLocalLogin ? (
               <Button
                 color={'red'}

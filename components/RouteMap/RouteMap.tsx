@@ -19,9 +19,16 @@ import MapViewDirections from 'react-native-maps-directions';
 import { getImage } from '@/utilities/getDriverImage';
 import { useLocalSearchParams } from 'expo-router';
 
-export default function RouteMap() {
+type RouteMapProps = {
+  driverLocationParam?: Coordinates;
+};
+
+export default function RouteMap({ driverLocationParam }: RouteMapProps) {
   const [fromLocation, setFromLocation] = useState<Coordinates>();
   const [toLocation, setToLocation] = useState<Coordinates>();
+  const [driverLocation, setDriverLocation] = useState<Coordinates | undefined>(
+    driverLocationParam,
+  );
   const params = useLocalSearchParams();
   useEffect(() => {
     console.log(params);
@@ -39,6 +46,10 @@ export default function RouteMap() {
     }
   }, []);
 
+  useEffect(() => {
+    setDriverLocation(driverLocationParam);
+  }, [driverLocationParam]);
+
   return (
     <View style={styles.homeMapContainer}>
       <MapView
@@ -53,10 +64,18 @@ export default function RouteMap() {
       >
         {googleMapApiKey && fromLocation && toLocation && (
           <>
+            {driverLocation && (
+              <MapMarker title="Driver location" coordinate={driverLocation}>
+                <Image
+                  style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                  source={getImage('Car')}
+                />
+              </MapMarker>
+            )}
             <MapMarker title="Origin" coordinate={fromLocation}>
               <Image
                 style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                source={getImage('Car')}
+                source={require('../../assets/images/user-location.png')}
               />
             </MapMarker>
             <MapViewDirections

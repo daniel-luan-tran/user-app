@@ -39,8 +39,7 @@ export type Account = {
   phoneNumber: string;
   address: string;
   displayName: string;
-  driverTypeId: number | null;
-  Driver: Driver | null;
+  User: User | null;
 };
 
 export type Driver = {

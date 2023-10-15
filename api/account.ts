@@ -5,10 +5,11 @@ export const updateUser = async (
   id: string,
   updatedUser: Account,
 ): Promise<Account> => {
+  const { User, ...account } = updatedUser;
   const response = await axios.put<Account>(
     `/v1/azureUsers/${id}`,
     {
-      ...updatedUser,
+      ...account,
     },
     authConfig,
   );
