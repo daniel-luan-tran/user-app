@@ -58,13 +58,24 @@ export default function DestinationSearch() {
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
-      const { coords } = location;
-      const { latitude, longitude } = coords;
-      console.log(location);
-      const currentLocationJson = await reverseGeocoding(latitude, longitude);
-      console.log(currentLocationJson.results[0].formatted_address);
-      setCurrentLocation(currentLocationJson.results[0].formatted_address);
+      // const location = await Location.getCurrentPositionAsync({});
+      // const { coords } = location;
+      // const { latitude, longitude } = coords;
+      // console.log(location);
+      // const currentLocationJson = await reverseGeocoding(latitude, longitude);
+      // console.log(currentLocationJson.results[0].formatted_address);
+      // setCurrentLocation(currentLocationJson.results[0].formatted_address);
+      // setStartCor({
+      //   latitude: latitude,
+      //   longitude: longitude,
+      // });
+
+      // Fake current location
+      const latitude = 10.7400238;
+      const longitude = 106.6363544;
+      setCurrentLocation(
+        '658M/21C Đ. Phạm Văn Chí, Phường 8, Quận 6, Thành phố Hồ Chí Minh, Vietnam',
+      );
       setStartCor({
         latitude: latitude,
         longitude: longitude,

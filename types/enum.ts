@@ -1,7 +1,7 @@
 export enum driverType {
-  car = 'car',
-  van = 'van',
-  moto = 'moto',
+  Car = 'Car',
+  Van = 'Van',
+  Motobike = 'Motobike',
 }
 
 export enum DynamicView {

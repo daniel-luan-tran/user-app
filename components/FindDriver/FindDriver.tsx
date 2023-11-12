@@ -14,12 +14,11 @@ import Colors from '@/constants/Colors';
 import io, { Socket } from 'socket.io-client';
 import { connectSocket } from '@/api/connectSocket';
 import { checkUserRole, checkUser } from '@/api';
-import { Account, Coordinates } from '@/types';
+import { Account, Coordinates, Driver } from '@/types';
 import { useNavigation, useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import RouteMap from '../RouteMap/RouteMap';
 
-const _apiUrl = process.env.EXPO_PUBLIC_API_URL;
 enum Status {
   FINDING_DRIVER = 'FINDING_DRIVER',
   FOUND_DRIVER = 'FOUND_DRIVER',
@@ -33,6 +32,8 @@ export default function FindDriver() {
   const [connecting, setConnecting] = useState<boolean>(false);
   const [user, setUser] = useState<Account | undefined>();
   const [driverLocation, setDriverLocation] = useState<Coordinates>();
+  const [driverAccount, setDriverAccount] = useState<Driver>();
+  const [passengerAccepted, setPassengerAccepted] = useState<boolean>(false);
 
   const isDarkMode = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -105,10 +106,12 @@ export default function FindDriver() {
           });
 
           _socket.on('acceptPassenger', (data) => {
-            console.log('driverLocation', data);
+            console.log('Drive info', data);
             setDriverLocation(data.driverLocation);
+            setDriverAccount(data.driverAccount);
             setLoading(false);
             setStatus(Status.FOUND_DRIVER);
+            setPassengerAccepted(true);
           });
 
           _socket.on('passengerRequest', (data) => {
@@ -124,12 +127,21 @@ export default function FindDriver() {
               },
             });
           });
+
+          _socket.on('updatedBooking', () => {
+            _socket.disconnect();
+            setStatus(Status.STOPPED_FIND_DRIVER);
+            setConnecting(false);
+            setLoading(false);
+            setPassengerAccepted(false);
+          });
         });
       }
 
       _socket.on('disconnect', () => {
         setStatus(Status.STOPPED_FIND_DRIVER);
         setDriverLocation(undefined);
+        setPassengerAccepted(false);
       });
 
       _socket.on('driverDisconnect', () => {
@@ -141,13 +153,16 @@ export default function FindDriver() {
   };
 
   const onDisconnectSocket = async () => {
-    if (_apiUrl) {
-      socket?.emit('passengerDisconnect');
-      // socket?.disconnect();
-      setStatus(Status.STOPPED_FIND_DRIVER);
-      setConnecting(false);
-      setLoading(false);
-    }
+    socket?.emit('passengerDisconnect');
+    // socket?.disconnect();
+    setStatus(Status.STOPPED_FIND_DRIVER);
+    setConnecting(false);
+    setLoading(false);
+    setPassengerAccepted(false);
+  };
+
+  const onCancelBooking = async () => {
+    socket?.emit('userCancelBooking');
   };
 
   if (!isValidRole)
@@ -184,14 +199,17 @@ export default function FindDriver() {
       <View
         style={{
           height: 700,
-          padding: 20,
+          padding: 10,
           flexDirection: 'column',
           justifyContent: 'center',
         }}
       >
         {driverLocation && (
           <View style={{ height: '80%' }}>
-            <RouteMap driverLocationParam={driverLocation} />
+            <RouteMap
+              driverLocationParam={driverLocation}
+              driverAccountParam={driverAccount}
+            />
           </View>
         )}
         {status === Status.FINDING_DRIVER && loading ? (
@@ -203,11 +221,21 @@ export default function FindDriver() {
         )}
 
         {connecting && status !== Status.STOPPED_FIND_DRIVER && (
-          <Button
-            title="Stop finding"
-            onPress={onDisconnectSocket}
-            color={'grey'}
-          />
+          <View>
+            {passengerAccepted ? (
+              <Button
+                title="Cancel booking"
+                onPress={onCancelBooking}
+                color={'grey'}
+              />
+            ) : (
+              <Button
+                title="Stop finding"
+                onPress={onDisconnectSocket}
+                color={'grey'}
+              />
+            )}
+          </View>
         )}
         <Text
           style={{

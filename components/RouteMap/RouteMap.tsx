@@ -21,14 +21,19 @@ import { useLocalSearchParams } from 'expo-router';
 
 type RouteMapProps = {
   driverLocationParam?: Coordinates;
+  driverAccountParam?: any;
 };
 
-export default function RouteMap({ driverLocationParam }: RouteMapProps) {
+export default function RouteMap({
+  driverLocationParam,
+  driverAccountParam,
+}: RouteMapProps) {
   const [fromLocation, setFromLocation] = useState<Coordinates>();
   const [toLocation, setToLocation] = useState<Coordinates>();
   const [driverLocation, setDriverLocation] = useState<Coordinates | undefined>(
     driverLocationParam,
   );
+  const [driverAccount, setDriverAccount] = useState<Driver | undefined>();
   const params = useLocalSearchParams();
   useEffect(() => {
     console.log(params);
@@ -47,8 +52,16 @@ export default function RouteMap({ driverLocationParam }: RouteMapProps) {
   }, []);
 
   useEffect(() => {
+    console.log('driverLocation', driverLocation);
     setDriverLocation(driverLocationParam);
   }, [driverLocationParam]);
+
+  useEffect(() => {
+    console.log('driverAccountParam', driverAccountParam);
+    if (driverAccountParam) {
+      setDriverAccount(driverAccountParam.Driver);
+    }
+  }, [driverAccountParam]);
 
   return (
     <View style={styles.homeMapContainer}>
@@ -62,20 +75,20 @@ export default function RouteMap({ driverLocationParam }: RouteMapProps) {
         }}
         style={{ width: '100%', height: '100%' }}
       >
-        {googleMapApiKey && fromLocation && toLocation && (
+        {googleMapApiKey && fromLocation && toLocation && driverAccount && (
           <>
             {driverLocation && (
               <MapMarker title="Driver location" coordinate={driverLocation}>
                 <Image
                   style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                  source={getImage('Car')}
+                  source={getImage(driverAccount?.driverType.name)}
                 />
               </MapMarker>
             )}
             <MapMarker title="Origin" coordinate={fromLocation}>
               <Image
-                style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                source={require('../../assets/images/user-location.png')}
+                style={{ width: 30, height: 30, resizeMode: 'contain' }}
+                source={getImage('Current')}
               />
             </MapMarker>
             <MapViewDirections
