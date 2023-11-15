@@ -36,8 +36,9 @@ export default function RouteMap({
   const [driverAccount, setDriverAccount] = useState<Driver | undefined>();
   const params = useLocalSearchParams();
   useEffect(() => {
-    console.log(params);
+    console.log('params', params);
     if (params) {
+      console.log('Hello');
       setFromLocation({
         latitude: parseFloat(params.startLat as string),
         longitude: parseFloat(params.startLng as string),
@@ -49,7 +50,7 @@ export default function RouteMap({
     } else {
       console.warn('no params');
     }
-  }, []);
+  }, [params]);
 
   useEffect(() => {
     console.log('driverLocation', driverLocation);
@@ -75,9 +76,9 @@ export default function RouteMap({
         }}
         style={{ width: '100%', height: '100%' }}
       >
-        {googleMapApiKey && fromLocation && toLocation && driverAccount && (
+        {googleMapApiKey && fromLocation && toLocation && (
           <>
-            {driverLocation && (
+            {driverLocation && driverAccount && (
               <MapMarker title="Driver location" coordinate={driverLocation}>
                 <Image
                   style={{ width: 20, height: 20, resizeMode: 'contain' }}
