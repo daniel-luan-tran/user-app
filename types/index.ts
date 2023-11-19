@@ -18,17 +18,6 @@ export type DriverType = {
   name: string;
 };
 
-export type BookingHistory = {
-  id: string;
-  accountId: string;
-  account: Account;
-  driverId: string;
-  driver: Driver;
-  bookAt: Date;
-  from: string;
-  to: string;
-};
-
 export type Account = {
   id: string;
   email: string;
