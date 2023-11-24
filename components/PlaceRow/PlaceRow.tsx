@@ -16,7 +16,6 @@ import {
   GooglePlacesAutocomplete,
 } from 'react-native-google-places-autocomplete';
 import { GoogleData } from '@/types';
-import HomeMap from '../HomeMap/HomeMap';
 import DriverTypes from '../DriverTypes/DriverTypes';
 import RouteMap from '../RouteMap/RouteMap';
 import { Entypo } from '@expo/vector-icons';

@@ -109,16 +109,8 @@ export default function TabIndexScreen() {
       </Text>
       {!user ? (
         <View>
-          <Button title="Login with Azure Microsoft" onPress={openModalLogin} />
+          {/* <Button title="Login with Azure Microsoft" onPress={openModalLogin} /> */}
           <Button title="Local login" onPress={openModalLocalLogin} />
-
-          {/* <Button
-            title="Hello"
-            onPress={async () => {
-              const hello = await axios.get('/v1/auth/hello');
-              console.log(hello.data);
-            }}
-          /> */}
         </View>
       ) : (
         <View>

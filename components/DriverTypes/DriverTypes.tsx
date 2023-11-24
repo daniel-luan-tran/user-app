@@ -18,6 +18,7 @@ import { useLocalSearchParams } from 'expo-router';
 export default function DriverTypes() {
   const [fromLocation, setFromLocation] = useState<Coordinates>();
   const [toLocation, setToLocation] = useState<Coordinates>();
+  const [driverType, setDriverType] = useState<number | null>();
   const params = useLocalSearchParams();
   const router = useRouter();
 
@@ -46,6 +47,7 @@ export default function DriverTypes() {
         startLng: fromLocation?.longitude || '',
         endLat: toLocation?.latitude || '',
         endLng: toLocation?.longitude || '',
+        driverType: driverType || '',
       },
     });
   };
@@ -53,7 +55,7 @@ export default function DriverTypes() {
   return (
     <View style={styles.driverTypesContainer}>
       <Text>Driver types</Text>
-      <DriverTypeRow />
+      <DriverTypeRow onChangeDriverType={setDriverType} />
       <Button title="Confirm" onPress={handleConfirm} />
     </View>
   );

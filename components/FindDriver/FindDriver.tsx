@@ -103,6 +103,7 @@ export default function FindDriver() {
               },
             },
             passengerAccount: user,
+            driverTypeId: parseInt(params.driverType as string),
           });
 
           _socket.on('acceptPassenger', (data) => {
