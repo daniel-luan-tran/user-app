@@ -11,6 +11,8 @@ import {
   localLogout,
   logout,
   updateUser,
+  checkJwt,
+  logoutJwt,
 } from '@/api';
 import { Driver, DriverType, Account } from '@/types';
 import { TextInput } from 'react-native-gesture-handler';
@@ -32,7 +34,9 @@ export default function TabIndexScreen() {
   const [isLocalLogin, setIsLocalLogin] = useState<boolean | undefined>();
   const getUser = async () => {
     try {
-      const data = await checkUser();
+      const data = await checkJwt();
+      if (!data) return;
+
       setUser(data);
       console.log(data);
       setUpdatedUser(data);
@@ -98,7 +102,7 @@ export default function TabIndexScreen() {
   };
 
   const handleLocalLogout = async () => {
-    await localLogout();
+    await logoutJwt();
     await getUser();
   };
 

@@ -13,7 +13,7 @@ import { Text, View } from '../Themed';
 import Colors from '@/constants/Colors';
 import io, { Socket } from 'socket.io-client';
 import { connectSocket } from '@/api/connectSocket';
-import { checkUserRole, checkUser } from '@/api';
+import { checkUserRole, checkUser, checkJwt } from '@/api';
 import { Account, Coordinates, Driver } from '@/types';
 import { useNavigation, useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
@@ -70,7 +70,8 @@ export default function FindDriver() {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const data = await checkUser();
+        const data = await checkJwt();
+        if (!data) return;
         setUser(data);
       } catch (error) {
         setUser(undefined);

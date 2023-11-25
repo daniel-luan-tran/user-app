@@ -1,5 +1,5 @@
 import { Account } from '@/types';
-import axios, { authConfig } from './axios'; // authConfig
+import axios, { authConfig, authConfigToken } from './axios'; // authConfig
 
 export const updateUser = async (
   id: string,
@@ -7,11 +7,11 @@ export const updateUser = async (
 ): Promise<Account> => {
   const { User, ...account } = updatedUser;
   const response = await axios.put<Account>(
-    `/v1/azureUsers/${id}`,
+    `/v1/jwtUsers/${id}`,
     {
       ...account,
     },
-    authConfig,
+    await authConfigToken(),
   );
 
   return response.data;
